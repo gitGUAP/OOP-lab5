@@ -1,38 +1,91 @@
-#include <iostream>
-#include "Vector.h"
+#include "circle.hpp"
+#include "line.hpp"
+#include "screen.hpp"
+#include "square.hpp"
 
-using namespace std;
+#include <memory>
+#include <vector>
 
 int main() {
-	Vector vecl(2);
-	vecl[0] = 1;
-	vecl[1] = 2;
+	auto screen = std::make_unique<Screen>(50, 35);
 
-	Vector vecr(3, 5);
-	vecr[3] = 5;
-	vecr[4] = 7;
-	// vecr[5] = 5; // out of range
+	std::vector<std::shared_ptr<Shape>> shapes;
 
-	cout << "vecl: "; vecl.print();
-	cout << "vecr: "; vecr.print();
-	cout << "vecl len: " << vecl.getLen() << endl;
+	shapes.emplace_back(
+		std::make_shared<Square>(Point(15, 3), Point(32, 12))); // Шляпа
 
-	Vector sum = vecl + vecr;
-	//sum = vecl + vec3; // different length
-	cout << "sum: "; sum.print();
+	Point p1 = shapes[shapes.size() - 1]->getLeftBottom();
+	p1.setX(p1.getX() - 2);
+	p1.setY(p1.getY() + 1);
+	Point p2 = shapes[shapes.size() - 1]->getRightBottom();
+	p2.setX(p2.getX() + 2);
+	p2.setY(p2.getY() + 1);
+	shapes.emplace_back(std::make_shared<Line>(p1, p2)); // Линия под шляпой
 
-	Vector subtraction = vecr - vecl;
-	cout << "subtraction: "; subtraction.print();
+	p1 = shapes[shapes.size() - 1]->getLeftBottom();
+	p1.setX(p1.getX() + 1);
+	p1.setY(p1.getY() + 1);
+	p2 = shapes[shapes.size() - 1]->getRightBottom();
+	p2.setX(p2.getX() - 1);
+	p2.setY(p2.getY() + 10);
+	shapes.emplace_back(std::make_shared<Square>(p1, p2)); // Голова
 
-	Vector multipl = vecr * 4;
-	cout << "multipl: "; multipl.print();
+	Point eyeLeft = shapes[shapes.size() - 1]->getLeftTop();
+	eyeLeft.setX(eyeLeft.getX() + 2);
+	eyeLeft.setY(eyeLeft.getY() + 2);
+	Point eyeRight = Point(eyeLeft.getX() + 2, eyeLeft.getY());
+	shapes.emplace_back(std::make_shared<Line>(eyeLeft, eyeRight)); // Левый глаз
 
-	Vector division = multipl / 2;
-	cout << "division: "; division.print();
+	eyeRight = shapes[shapes.size() - 2]->getRightTop();
+	eyeRight.setX(eyeRight.getX() - 2);
+	eyeRight.setY(eyeRight.getY() + 2);
+	eyeLeft = Point(eyeRight.getX() - 2, eyeRight.getY());
+	shapes.emplace_back(std::make_shared<Line>(eyeLeft, eyeRight)); // Правый глаз
 
-	cout << "vecl < vecr: "; cout << (vecl < vecr) << endl;
+	std::shared_ptr<Shape> leftEye = shapes[shapes.size() - 2];
+	std::shared_ptr<Shape> rightEye = shapes[shapes.size() - 1];
+	Point nose = Point(
+		leftEye->getRightTop().getX() +
+		(rightEye->getLeftTop().getX() - leftEye->getRightTop().getX()) / 2,
+		leftEye->getRightTop().getY() + 2);
+	shapes.emplace_back(std::make_shared<Line>(nose, nose)); // Нос
 
+	std::shared_ptr<Shape> head = shapes[shapes.size() - 4];
+	p1 = head->getLeftBottom();
+	p1.setX(p1.getX() + 2);
+	p1.setY(p1.getY() - 2);
+	p2 = head->getRightBottom();
+	p2.setX(p2.getX() - 2);
+	p2.setY(p2.getY() - 2);
+	shapes.emplace_back(std::make_shared<Line>(p1, p2)); // Рот
 
-	system("pause");
+	auto costume = std::make_shared<Line>(Point(p1.getX(), p1.getY() + 10),
+		Point(p2.getX(), p2.getY() + 10));
+	shapes.emplace_back(costume); //Линия костюма
+
+	p1 = Point(costume->getLeftBottom().getX(),
+		costume->getLeftBottom().getY() + 1);
+	auto leftDot = std::make_shared<Line>(p1, p1);
+	shapes.emplace_back(leftDot); //Левая точка
+
+	p1 = Point(costume->getRightBottom().getX(),
+		costume->getRightBottom().getY() + 1);
+	auto rightDot = std::make_shared<Line>(p1, p1);
+	shapes.emplace_back(rightDot); //Правая точка
+
+	// 10
+	shapes.emplace_back(std::make_shared<Circle>(17, 17, 1));
+
+	// 11
+	shapes.emplace_back(std::make_shared<Circle>(17, 30, 1));
+
+	// 12
+	shapes.emplace_back(std::make_shared<Circle>(7, 24, 2));
+
+	for (auto shape : shapes)
+		shape->draw(screen.get());
+	screen->draw();
+
+	std::cin.get();
 	return 0;
 }
