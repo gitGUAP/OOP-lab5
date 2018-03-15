@@ -12,10 +12,15 @@ public:
   }
 
   virtual void draw(Screen *screen) const {
-    _left->draw(screen);
-    _top->draw(screen);
-    _right->draw(screen);
-    _bottom->draw(screen);
+    try {
+      _left->draw(screen);
+      _top->draw(screen);
+      _right->draw(screen);
+      _bottom->draw(screen);
+    } catch (...) {
+      std::cerr << Shape::getID() << ": Out of Range screen in " << getName()
+                << '\n';
+    }
   }
 
   virtual void move(Point p) {
@@ -24,6 +29,8 @@ public:
     _right->move(p);
     _bottom->move(p);
   }
+
+  std::string getName() const { return "Square"; }
 
   Point getLeftTop() const { return _left->getLeftTop(); }
 

@@ -73,14 +73,9 @@ int main() {
   auto rightDot = std::make_shared<Line>(p1, p1);
   shapes.emplace_back(rightDot); //Правая точка
 
-  // 10
-  shapes.emplace_back(std::make_shared<Circle>(17, 17, 1));
-
-  // 11
-  shapes.emplace_back(std::make_shared<Circle>(17, 30, 1));
-
-  // 12
-  shapes.emplace_back(std::make_shared<Circle>(7, 24, 16));
+  // ERROR
+  shapes.emplace_back(std::make_shared<Circle>(5, 10, 7));
+  shapes.emplace_back(std::make_shared<Line>(Point(0, 0), Point(40, 40)));
 
   for (auto shape : shapes)
     shape->draw(screen.get());

@@ -7,10 +7,7 @@
 
 class Line : public Shape {
 public:
-  Line(const Point &a, const Point &b) {
-    _a = a;
-    _b = b;
-  }
+  Line(const Point &a, const Point &b) : _a(a), _b(b) {}
 
   Line(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1) {
     _a = Point(x0, y0);
@@ -23,8 +20,15 @@ public:
   }
 
   void draw(Screen *screen) const {
-    screen->putLine(_a.getY(), _a.getX(), _b.getY(), _b.getX());
+    try {
+      screen->putLine(_a.getY(), _a.getX(), _b.getY(), _b.getX());
+    } catch (...) {
+      std::cerr << Shape::getID() << ": Out of Range screen in " << getName()
+                << '\n';
+    }
   }
+
+  std::string getName() const { return "Line"; }
 
   void move(Point p) {
     _a.setX(_a.getX() + p.getX());
